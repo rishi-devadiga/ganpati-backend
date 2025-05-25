@@ -120,9 +120,9 @@ from flask_mail import Mail, Message
 import traceback
 from io import BytesIO
 app.config.update(
-    MAIL_SERVER='smtp.gmail.com',
-    MAIL_PORT=587,
-    MAIL_USE_TLS=True,
+    MAIL_SERVER=os.getenv('MAIL_SERVER'),
+    MAIL_PORT=os.getenv('MAIL_PORT'),  # Default port for TLS
+    MAIL_USE_TLS=True,  # Use TLS
     MAIL_USERNAME=os.getenv('MAIL_USERNAME'),  # your Gmail address
     MAIL_PASSWORD=os.getenv('MAIL_PASSWORD'),
     MAIL_DEFAULT_SENDER=os.getenv('MAIL_USERNAME'),  # your app password from Gmail

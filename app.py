@@ -116,44 +116,36 @@ def verify_payment():
             return jsonify({'status': 'failure', 'error': str(e)}), 500
 
 
-from flask_mail import Mail, Message
-import traceback
-from io import BytesIO
-app.config.update(
-    MAIL_SERVER=os.getenv('MAIL_SERVER'),
-    MAIL_PORT=os.getenv('MAIL_PORT'),  # Default port for TLS
-    MAIL_USE_TLS=True,  # Use TLS
-    MAIL_USERNAME=os.getenv('MAIL_USERNAME'),  # your Gmail address
-    MAIL_PASSWORD=os.getenv('MAIL_PASSWORD'),
-    MAIL_DEFAULT_SENDER=os.getenv('MAIL_USERNAME'),  # your app password from Gmail
-)
 
-mail = Mail(app)
+from sendgrid import SendGridAPIClient
+from sendgrid.helpers.mail import Mail
+
 
 @app.route('/send-receipt', methods=['POST'])
 def send_receipt():
     email = request.form.get('email')
-    file = request.files['pdf']
-
-    if not email or not file:
-        return jsonify({"error": "Missing email or file"}), 400
-
-    # Read PDF file
-    pdf_data = file.read()
-
-    # Send email
-    msg = Message("Your Receipt", recipients=[email])
-    msg.body = "Attached is your receipt."
-    msg.attach("receipt.pdf", "application/pdf", pdf_data)
-
+    # If you want to send an attachment (like a PDF receipt):
+    pdf_file = request.files.get('pdf')
+    message = Mail(
+        from_email=os.getenv("MAIL_USERNAME"),  # or a verified sender in SendGrid
+        to_emails=email,
+        subject="Your Donation Receipt",
+        html_content="<strong>Thank you for your donation!</strong>"
+    )
+    # Attach PDF if present
+    if pdf_file:
+        message.add_attachment(
+            pdf_file.read(),
+            'application/pdf',
+            'receipt.pdf'
+        )
     try:
-        mail.send(msg)
-        return jsonify({"message": "Email sent successfully"})
+        sg = SendGridAPIClient(os.getenv("SENDGRID_API_KEY"))
+        sg.send(message)
+        return jsonify({'status': 'success'})
     except Exception as e:
-        print("=== EMAIL SENDING ERROR ===")
-        print(str(e))  # Print the actual error
-        traceback.print_exc() 
-        return jsonify({"error": str(e)}), 500
+        print("SendGrid error:", str(e))
+        return jsonify({'status': 'failure', 'error': str(e)}), 500
     
 
 import pandas as pd

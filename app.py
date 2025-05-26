@@ -119,6 +119,8 @@ def verify_payment():
 
 from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import Mail
+import base64
+from sendgrid.helpers.mail import Attachment, FileContent, FileName, FileType, Disposition
 
 
 @app.route('/send-receipt', methods=['POST'])
@@ -134,11 +136,14 @@ def send_receipt():
     )
     # Attach PDF if present
     if pdf_file:
-        message.add_attachment(
-            pdf_file.read(),
-            'application/pdf',
-            'receipt.pdf'
+        encoded_pdf = base64.b64encode(pdf_file.read()).decode()
+        attachment = Attachment(
+            FileContent(encoded_pdf),
+            FileName('receipt.pdf'),
+            FileType('application/pdf'),
+            Disposition('attachment')
         )
+        message.attachment = attachment
     try:
         sg = SendGridAPIClient(os.getenv("SENDGRID_API_KEY"))
         sg.send(message)

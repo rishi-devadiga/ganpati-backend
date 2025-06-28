@@ -117,39 +117,43 @@ def verify_payment():
 
 
 
-from sendgrid import SendGridAPIClient
-from sendgrid.helpers.mail import Mail
+import sib_api_v3_sdk
+from sib_api_v3_sdk.rest import ApiException
+from sib_api_v3_sdk.models import SendSmtpEmail, SendSmtpEmailAttachment
 import base64
-from sendgrid.helpers.mail import Attachment, FileContent, FileName, FileType, Disposition
-
 
 @app.route('/send-receipt', methods=['POST'])
 def send_receipt():
     email = request.form.get('email')
-    # If you want to send an attachment (like a PDF receipt):
     pdf_file = request.files.get('pdf')
-    message = Mail(
-        from_email=os.getenv("MAIL_USERNAME"),  # or a verified sender in SendGrid
-        to_emails=email,
-        subject="Your Donation Receipt",
-        html_content="<strong>Thank you for your donation!</strong>"
-    )
-    # Attach PDF if present
+
+    configuration = sib_api_v3_sdk.Configuration()
+    configuration.api_key['api-key'] = os.getenv("BREVO_API_KEY")
+    api_instance = sib_api_v3_sdk.TransactionalEmailsApi(sib_api_v3_sdk.ApiClient(configuration))
+
+    attachments = []
     if pdf_file:
         encoded_pdf = base64.b64encode(pdf_file.read()).decode()
-        attachment = Attachment(
-            FileContent(encoded_pdf),
-            FileName('receipt.pdf'),
-            FileType('application/pdf'),
-            Disposition('attachment')
-        )
-        message.attachment = attachment
+        attachments = [
+            SendSmtpEmailAttachment(
+                name="receipt.pdf",
+                content=encoded_pdf
+            )
+        ]
+
+    send_smtp_email = SendSmtpEmail(
+        to=[{"email": email}],
+        sender={"email": os.getenv("MAIL_USERNAME")},
+        subject="Your Donation Receipt",
+        html_content="<strong>Thank you for your donation!</strong>",
+        attachments=attachments
+    )
+
     try:
-        sg = SendGridAPIClient(os.getenv("SENDGRID_API_KEY"))
-        sg.send(message)
+        api_instance.send_transac_email(send_smtp_email)
         return jsonify({'status': 'success'})
-    except Exception as e:
-        print("SendGrid error:", str(e))
+    except ApiException as e:
+        print("Brevo error:", str(e))
         return jsonify({'status': 'failure', 'error': str(e)}), 500
     
 

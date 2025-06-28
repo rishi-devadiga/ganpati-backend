@@ -126,6 +126,15 @@ import base64
 def send_receipt():
     email = request.form.get('email')
     pdf_file = request.files.get('pdf')
+    sender_email = os.getenv("MAIL_USERNAME")
+
+    # Debug: print values
+    print("email:", email)
+    print("sender_email:", sender_email)
+    print("pdf_file:", pdf_file)
+
+    if not email or not sender_email:
+        return jsonify({'status': 'failure', 'error': 'Missing email or sender'}), 400
 
     configuration = sib_api_v3_sdk.Configuration()
     configuration.api_key['api-key'] = os.getenv("BREVO_API_KEY")
@@ -143,7 +152,7 @@ def send_receipt():
 
     send_smtp_email = SendSmtpEmail(
         to=[{"email": email}],
-        sender={"email": os.getenv("MAIL_USERNAME")},
+        sender={"email": sender_email},
         subject="Your Donation Receipt",
         html_content="<strong>Thank you for your donation!</strong>",
         attachments=attachments

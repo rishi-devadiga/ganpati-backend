@@ -155,7 +155,7 @@ def send_receipt():
         sender={"email": sender_email},
         subject="Your Donation Receipt",
         html_content="<strong>Thank you for your donation!</strong>",
-        attachments=attachments
+        attachment=attachments
     )
 
     try:

@@ -14,6 +14,7 @@ class Transactions(db.Model):
     transaction_type = db.Column(db.String(50), nullable=False)
     amount = db.Column(db.Float, nullable=False)
     date = db.Column(db.DateTime, default=datetime.utcnow)
+    status = db.Column(db.String(50), nullable=True)  # e.g., 'pending', 'completed', 'failed'
     razorpay_order_id = db.Column(db.String(100), nullable=False)
     razorpay_payment_id = db.Column(db.String(100), nullable=False)
 

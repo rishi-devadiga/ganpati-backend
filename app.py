@@ -13,6 +13,8 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 # --- Extension Initialization ---
 db.init_app(app)  # Initialize the db instance from models.py
 
+from flask_migrate import Migrate
+migrate = Migrate(app, db)
 # --- Create tables if they don't exist ---
 with app.app_context():
     db.create_all()
@@ -60,6 +62,7 @@ def cash_payment():
             email=data.get('email'),
             transaction_type='cash',
             amount=float(data.get('amount')),
+            status=data.get('status'),
             razorpay_order_id='CASH',
             razorpay_payment_id='CASH'
         )
@@ -99,7 +102,8 @@ def verify_payment():
                 transaction_type=data.get('transaction_type'),
                 amount=float(data.get('amount')) / 100,
                 razorpay_order_id=razorpay_order_id,
-                razorpay_payment_id=razorpay_payment_id
+                razorpay_payment_id=razorpay_payment_id,
+                status="completed"
             )
 
             db.session.add(transaction)

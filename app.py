@@ -29,7 +29,7 @@ from datetime import datetime
 import requests
 
 
-CORS(app)
+CORS(app, origins=["http://localhost:8080", "https://ganpati-frontend.vercel.app"])
 
 
 client = razorpay.Client(auth=(os.getenv("RAZORPAY_KEY_ID"), os.getenv("RAZORPAY_KEY_SECRET")))

@@ -68,7 +68,7 @@ def cash_payment():
         )
         db.session.add(transaction)
         db.session.commit()
-        return jsonify({"status": "success", "message": "Cash payment recorded."})
+        return jsonify({"status": "success", "message": "Cash payment recorded.", "id": transaction.id})
     except Exception as e:
         print("Cash payment error:", str(e))
         return jsonify({'status': 'failure', 'error': str(e)}), 500
@@ -109,7 +109,7 @@ def verify_payment():
             db.session.add(transaction)
             db.session.commit()
 
-            return jsonify({"status": "success", "message": "Payment verified and transaction saved."})
+            return jsonify({"status": "success", "message": "Payment verified and transaction saved.", "id": transaction.id})
 
         except razorpay.errors.SignatureVerificationError as e:
             print("Signature verification failed:", str(e))

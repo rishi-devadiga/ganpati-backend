@@ -54,6 +54,13 @@ def register():
 @app.route('/cash-payment', methods=['POST'])
 def cash_payment():
     data = request.get_json()
+    half_payment = data.get('half_payment')
+    amount = data.get('amount')
+
+    amount_pending = None
+    if data.get('status') == 'pending' and half_payment is not None:
+        amount_pending = int(amount) - int(half_payment)
+
     try:
         transaction = Transactions(
             name=data.get('name'),
@@ -63,6 +70,8 @@ def cash_payment():
             transaction_type='cash',
             amount=float(data.get('amount')),
             status=data.get('status'),
+            half_payment=half_payment,
+            amount_pending=amount_pending,
             razorpay_order_id='CASH',
             razorpay_payment_id='CASH'
         )
@@ -189,6 +198,9 @@ def export_transactions():
         'Email': t.email,
         'Transaction Type': t.transaction_type,
         'Amount': t.amount,
+        'Status': t.status,
+        'Half Payment': t.half_payment,
+        'Amount Pending': t.amount_pending,
         'Date': t.date.strftime('%Y-%m-%d %H:%M:%S'),
         'Razorpay Order ID': t.razorpay_order_id,
         'Razorpay Payment ID': t.razorpay_payment_id

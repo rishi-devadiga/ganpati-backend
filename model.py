@@ -15,6 +15,8 @@ class Transactions(db.Model):
     amount = db.Column(db.Float, nullable=False)
     date = db.Column(db.DateTime, default=datetime.utcnow)
     status = db.Column(db.String(50), nullable=True)  # e.g., 'pending', 'completed', 'failed'
+    half_payment = db.Column(db.Integer, nullable=True)  # Amount in paise or INR, match your logic
+    amount_pending = db.Column(db.Integer, nullable=True)  # Amount in paise or INR
     razorpay_order_id = db.Column(db.String(100), nullable=False)
     razorpay_payment_id = db.Column(db.String(100), nullable=False)
 

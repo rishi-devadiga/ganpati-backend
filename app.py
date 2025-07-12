@@ -7,7 +7,7 @@ load_dotenv()
 
 # --- App Initialization ---
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:///donation.db')
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'DATABASE_URL=postgresql://donation_nh6y_user:GYoyTA0fVnH7JUXeapi0Alj3E16xiXuh@dpg-d1ge173ipnbc73ajrg3g-a.render.com:5432/donation_nh6y')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 # --- Extension Initialization ---
@@ -215,6 +215,12 @@ def export_transactions():
     output.seek(0)
     return send_file(output, download_name="transactions.xlsx", as_attachment=True)
 
+@app.route('/update-schema', methods=['GET'])
+def update_schema():
+    db.session.execute('ALTER TABLE transactions ADD COLUMN half_payment INTEGER')
+    db.session.execute('ALTER TABLE transactions ADD COLUMN amount_pending INTEGER')
+    db.session.commit()
+    return "Schema updated"
 
 if __name__ == '__main__':
     app.run(port=5000, debug=True)

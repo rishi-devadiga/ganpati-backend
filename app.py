@@ -7,7 +7,7 @@ load_dotenv()
 
 # --- App Initialization ---
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'DATABASE_URL=postgresql://donation_nh6y_user:GYoyTA0fVnH7JUXeapi0Alj3E16xiXuh@dpg-d1ge173ipnbc73ajrg3g-a.render.com:5432/donation_nh6y')
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:///transactions.db')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 # --- Extension Initialization ---
